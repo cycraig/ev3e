@@ -23,7 +23,7 @@ botOrientation = None;
 goalPosition = None;
 
 class Camera():
-    def __init__(self, medianFrames=1, camIndex=1, show=True, debug=False):
+    def __init__(self, camIndex=0, medianFrames=1, show=True, debug=False):
         # TODO: medianFrames -> number of frames over which to take the median
         # can do that outside of camera class?
         self.camIndex = camIndex;

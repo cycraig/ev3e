@@ -210,7 +210,8 @@ def connectpoints(x,y,point_colour='ro',line_colour='k-'):
 def plot_points(G):
 	fig, ax = plt.subplots()
 	s = 500
-
+    
+	ax.set_aspect('equal')
 	ax.scatter(G.vertices[0][0], G.vertices[0][1], color='g', s=s/3, marker='s', alpha=.4) #start
 	ax.scatter(G.goal[0][0], G.goal[0][1], color='r', s=2*s, marker='^', alpha=.4) #end
 
