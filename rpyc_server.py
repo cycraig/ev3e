@@ -38,13 +38,16 @@ if __name__ == '__main__':
     bot.rotate_to(0);
     bot.rotate_by(-90);'''
     
-    bot.set(0,0,0);
-    bot.move_to(-30,0);
-    bot.move_to(-30,90);
-    bot.move_to(30,120);
-    bot.close_pincers();
-    bot.move_to(120,60);
+    #bot.set(0,0,0);
+    #bot.reverse_to(-30,0);
+    #bot.reverse_to(0,-30);
+    #bot.reverse_to(30,-30);
+    #bot.move_to(-30,0);
+    #bot.move_to(-30,90);
+    #bot.move_to(30,120);
+    #bot.close_pincers();
+    #bot.move_to(120,60);
     bot.open_pincers();
     #bot.reverse(30);
     #bot.set(
-    bot.move_to(0,0);
+    #bot.move_to(0,0);

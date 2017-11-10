@@ -195,7 +195,8 @@ def move_to(x,y):
     # Euclidean distance to target position
     distance = math.sqrt((curr[0]-target[0])*(curr[0]-target[0])+(curr[1]-target[1])*(curr[1]-target[1]));
         
-    time.sleep(rotate_by(relative_angle)+0.15);
+    #time.sleep(rotate_by(relative_angle)+0.15);
+    time.sleep(rotate_by(relative_angle)+0.1);
     
     # Try correct angle if necessary
     end_angle = gyro.value();
@@ -211,7 +212,7 @@ def move_to(x,y):
     print("DISTANCE =",distance)
     
     move_time = forward(distance);
-    time.sleep(move_time+0.1);
+    time.sleep(move_time)#+0.1);
     '''
     if auto_close:
         while(time.time()-start < move_time+0.2):
@@ -233,3 +234,4 @@ def move_to(x,y):
     CURRENT_POSITION = [x,y];
     print("Final angle:",CURRENT_ANGLE);
     print("Final position: (%.0f,%.0f)"%(x,y));
+   

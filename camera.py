@@ -67,18 +67,18 @@ class Camera():
         ret, frame = self.cam.read()
         if ret == True:
             corners, ids, rejectedImgPoints = aruco.detectMarkers(frame, aruco_dict, parameters=aruco_params)
-            if ids != None:
+            if ids is not None:
                 frame = aruco.drawDetectedMarkers(frame, corners ,ids)
                 # adjust marker length from 0.168 (16.8 cm) to 0.0504=(0.168*(30/100)) to account for cm change? -- doesn't work, do conversion manually
                 rvecs, tvecs, _ =  aruco.estimatePoseSingleMarkers(corners, 0.168, cameraMatrix, distCoeffs);
                 #print rvecs, tvecs
-                for i in xrange(len(ids)):
+                for i in range(len(ids)):
                     aruco.drawAxis(frame, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1);
                     
                     # Calculate bot position and orientation
                     if(ids[i][0] == botID):
                         foundBot = True;
-                        botPosition = np.mean(corners[i],axis=1)*30./100.; # 30cm per 100px
+                        botPosition = np.mean(corners[i],axis=1)[0]#*30./100.; # 30cm per 100px
                         estTrans = cv2.estimateRigidTransform(np.array([[-0.84,0.84],[0.84,0.84],[0.84,-0.84],[-0.84,-0.84]],dtype=np.float32),corners[i][0], fullAffine=True);
                         botOrientation = math.atan2(estTrans[1][0],estTrans[0][0])*180./np.pi # degrees
                         
@@ -90,7 +90,7 @@ class Camera():
                     # Calculate goal position
                     if(ids[i][0] == goalID):
                         foundGoal = True;
-                        goalPosition = np.mean(corners[i],axis=1)*30./100.; # 30cm per 100px
+                        goalPosition = np.mean(corners[i],axis=1)[0]#*30./100.; # 30cm per 100px
                         
                 # TODO: Reset the deques if we didn't find the bot/goal
                 #if not foundBot:
@@ -107,6 +107,21 @@ class Camera():
                 cv2.imshow('frame',frame);
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     self.running = False;
+                    
+def get_bot_position():
+    global botPosition;
+    # return bot position in pixels
+    return botPosition;
+    
+def get_bot_orientation():
+    global botOrientation;
+    # return bot orientation in degrees
+    return botOrientation;
+
+def get_goal_position():
+    global goalPosition;
+    # return bot position in pixels
+    return goalPosition;
 
 if __name__ == "__main__":
     try:
