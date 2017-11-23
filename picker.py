@@ -20,7 +20,7 @@ def pick_things(event,x,y,flags,param):
 	elif event == cv2.EVENT_RBUTTONDOWN:
 #		pixel = image[y,x]
 		print(x, y)
-		obs.append((x, y), 9)
+		obs.append((x, y, 9))
 		cv2.circle(image,(x,y),10,(0,0,255),1)
 
 	elif event == cv2.EVENT_FLAG_SHIFTKEY:
@@ -33,7 +33,9 @@ def pick_things(event,x,y,flags,param):
 def main():
 	global image, pixel, cans, obs # so we can use it in mouse callback
 
-	cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture(0)
+	cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+	cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 	ret, frame = cap.read()
 	ret, frame = cap.read()
 	image = frame

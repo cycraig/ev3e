@@ -15,8 +15,8 @@ BLUETOOTH = '192.168.50.2'; # *.*.*.1 for laptop?
 HOSTNAME = 'ev3dev';
 
 ROBOT_RADIUS = 17.5 # in cm
-PIXELS_TO_CM_RATIO = 30./106.#30./90.;
-CM_TO_PIXELS_RATIO = 106./30.#90./30.;
+PIXELS_TO_CM_RATIO = 30./107.#30./105.7#30./111.#30./109.#30./106.#30./90.;
+CM_TO_PIXELS_RATIO = 107./30.#105.7/30.#30./111.#30./109.#106./30.#90./30.;
 
 # path planning parameters
 deltaq = 7.
@@ -55,6 +55,11 @@ def project_towards(a,b,length):
         
 def pixels_to_cm(x,y):
     return x*PIXELS_TO_CM_RATIO,y*PIXELS_TO_CM_RATIO
+    
+def cm_to_pixels(xy):
+    x = xy[0]
+    y = xy[1]
+    return (x*CM_TO_PIXELS_RATIO,y*CM_TO_PIXELS_RATIO)
 
 def process_objects(cans, obs):
     '''
@@ -66,14 +71,14 @@ def process_objects(cans, obs):
         x,y,r = cans[i];
         x *= PIXELS_TO_CM_RATIO;
         y *= PIXELS_TO_CM_RATIO;
-        r = r*PIXELS_TO_CM_RATIO+ROBOT_RADIUS*0.75;
+        r = r*PIXELS_TO_CM_RATIO+ROBOT_RADIUS*0.85#*0.75;
         cans[i] = (x,y,r);
         
     for i in range(len(obs)):
         x,y,r = obs[i];
         x *= PIXELS_TO_CM_RATIO;
         y *= PIXELS_TO_CM_RATIO;
-        r = r*PIXELS_TO_CM_RATIO+ROBOT_RADIUS*0.75;
+        r = r*PIXELS_TO_CM_RATIO+ROBOT_RADIUS*0.85#0.75;
         obs[i] = (x,y,r);
         
 def dist(a,b):
@@ -99,6 +104,13 @@ def move_along_path(path,end_action=None):
     n = len(path);
     print("Whole path =",path);
     for i in range(n-1):
+    
+        # convert path to pixels for drawing
+        camera_path = []
+        for j in range(i,n):
+            camera_path.append(cm_to_pixels(path[j]));
+        cam.set_path(camera_path);
+    
         botPosition = camera.get_bot_position();
         botPos = to_bot_coordinates(pixels_to_cm(botPosition[0],botPosition[1]));
         botOrientation = camera.get_bot_orientation();
@@ -127,10 +139,17 @@ def move_along_path(path,end_action=None):
     botOrientation = camera.get_bot_orientation();
     # FINAL GOAL (projected backwards to account for distance to pincers)
     goal = path[-1];
+    cgoal = (goal[0],goal[1])
     goal = to_bot_coordinates(goal);
     print("Goal before",goal);
     goal = project_towards(goal,botPos,7)
     print("Goal after",goal);
+    
+    # convert path to pixels for drawing
+    camera_path = []
+    #camera_path.append(cm_to_pixels((botPosition[0],botPosition[1])));
+    camera_path.append(cm_to_pixels(cgoal));
+    cam.set_path(camera_path);
     
     bot.move_to(goal[0],goal[1]);
     
@@ -161,7 +180,7 @@ if __name__ == '__main__':
     try:
         # start camera thread
         print("Starting camera...");
-        cam = camera.Camera(show=False,debug=False);
+        cam = camera.Camera(camIndex=0,show=True,debug=False);
         cam.start();
         
         print("Waiting for camera...");
@@ -196,12 +215,19 @@ if __name__ == '__main__':
             obstacles = convert_to_obstacles(cans+obs);
             #obstacles = cans+obs;
             path = RRT(botPos,(can[0],can[1]),obstacles);
+            # convert path to pixels for drawing
+            camera_path = []
+            for xy in path:
+                camera_path.append(cm_to_pixels(xy));
+            cam.set_path(camera_path);
             if path is None:
                 print("CANNOT REACH CAN!")
                 # add can back to list, maybe we can reach it after removing other cans
                 cans.append(can);
                 i = i-1;
                 continue;
+                
+            
             
             print("Following path to can...");
             move_along_path(path,"close");
@@ -214,6 +240,11 @@ if __name__ == '__main__':
             #goalPosition = camera.get_goal_position();
             goalPos = pixels_to_cm(goalPosition[0],goalPosition[1]);
             path = RRT(botPos,goalPos,obstacles);
+            # convert path to pixels for drawing
+            camera_path = []
+            for xy in path:
+                camera_path.append(cm_to_pixels(xy));
+            cam.set_path(camera_path);
             if path is None:
                 print("CANNOT REACH GOAL!")
                 bot.open_pincers();
@@ -243,6 +274,7 @@ if __name__ == '__main__':
                         break;
                     else:
                         k = k-1;'''
+                cam.set_path(None);
                 bot.reverse(np.minimum(dist(botPos,path[-1]),13));
                 
                 if len(cans) == 0:
@@ -292,17 +324,18 @@ if __name__ == '__main__':
 
             #pp.plot(G, radius, final_path)'''
         
+        if done is True:
+            print("DONE!")
+            bot.speak("Yay! Yay! Yay!");
+            bot.rotate_by(-90);
+            bot.rotate_by(90);
+            bot.rotate_by(360);
+            time.sleep(5);
+        else:
+            print("STUCK!");
+            bot.speak("STUCK");
+        
     finally:
         # clean-up thread, otherwise hangs on Ctrl-C
         cam.stop();
     #time.sleep(10000);
-    
-    if done is True:
-        print("DONE!")
-        bot.speak("Yay! Yay! Yay!");
-        bot.rotate_by(-90);
-        bot.rotate_by(90);
-        bot.rotate_by(360);
-    else:
-        print("STUCK!");
-        bot.speak("STUCK");

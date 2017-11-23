@@ -67,7 +67,7 @@ def nearest_vertex(q, G):
 	min = 100000. # cannot be greater than size of world
 	min_vertex = [0.,0.]
 	# print G.vertices
-	for i in xrange(len(G.vertices)):
+	for i in range(len(G.vertices)):
 		dist = distance(G.vertices[i], q)
 		if (min > dist):
 			min = dist
@@ -87,7 +87,7 @@ def gradient(p,q):
 def parent_edge_idx(node, G):
 	edge_idx = 0
 
-	for i in xrange(len(G.edges)):
+	for i in range(len(G.edges)):
 		if (G.edges[i][1][0] == node[0] and G.edges[i][1][1] == node[1]):
 			edge_idx = i
 	return edge_idx
@@ -122,7 +122,14 @@ def get_final_path(G, deltaq, radius, max_count):
 
 	# print path[::-1]
 	G.path = path[::-1]
-	return path[::-1]
+	#return path[::-1]
+    
+	fpath = []
+	fpath.append(path[0][0]);
+	for i in range(len(path)):
+		fpath.append(path[i][1])
+	fpath.append(G.goal[0])
+	return fpath
 
 # Core RRT
 class Tree():
@@ -151,11 +158,11 @@ class Tree():
 		self.edges.append([qnear,qnew,root_idx])
 
 	def add_obsticles(self, edges):
-		for j in xrange(len(edges)):
+		for j in range(len(edges)):
 			self.obsticles.append(edges[j])
 
 	def detect_intersection(self, p, q):
-		for i in xrange(len(self.obsticles)):
+		for i in range(len(self.obsticles)):
 			r = self.obsticles[i][1]
 
 			if intersects_circle(p,q,self.obsticles[i][0],r):
@@ -208,14 +215,18 @@ def connectpoints(x,y,point_colour='ro',line_colour='k-'):
 	plt.plot([x1,x2],[y1,y2],line_colour)
 
 def plot_points(G):
-	fig, ax = plt.subplots()
+	#fig, ax = plt.subplots()
+	plt.axis([G.min, G.max, G.min, G.max])
+	ax = plt.gca();
 	s = 500
-    
+	
 	ax.set_aspect('equal')
+	ax.invert_yaxis()
+	ax.xaxis.set_ticks_position('top')
 	ax.scatter(G.vertices[0][0], G.vertices[0][1], color='g', s=s/3, marker='s', alpha=.4) #start
-	ax.scatter(G.goal[0][0], G.goal[0][1], color='r', s=2*s, marker='^', alpha=.4) #end
+	ax.scatter(G.goal[0][0], G.goal[0][1], color='r', s=s, marker='^', alpha=.4) #end
 
-	return fig, ax
+	return ax#fig, ax
 
 def plot_path(path,point_colour='ro',line_colour='k-'):
 	for i in xrange(len(path)):
@@ -225,7 +236,7 @@ def plot_path(path,point_colour='ro',line_colour='k-'):
 
 def plot_cirlces(centres, ax):
 	for c in centres:
-		circle = plt.Circle(c[0].tolist(), c[1], color='orange', fill=False)
+		circle = plt.Circle(c[0], c[1], color='orange', fill=False)
 		ax.add_artist(circle)
 		ax.scatter(c[0][0], c[0][1], color='orange', s=50, alpha=.4)
 
@@ -237,7 +248,8 @@ def plot_RRT(G, r, ax):
 	plot_path(edges,'bo','b-')
 
 def plot(G, r, final_path):
-	fig, ax = plot_points(G)
+	#fig, ax = plot_points(G)
+	ax = plot_points(G)
 	plot_RRT(G, r, ax)
 	plot_path(G.path,'go','g-')
 	plt.show()

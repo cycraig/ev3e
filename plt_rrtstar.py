@@ -23,9 +23,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 WIDTH=170
-HEIGHT=160
-MAXNODES = 1800
-REWIRE_RADIUS = 18
+HEIGHT=150
+MAXNODES = 2200
+REWIRE_RADIUS = 19
 DEBUG=False
 
 class Point(object):
@@ -185,7 +185,7 @@ def RRTStar(start, goal, obstacles, visualise=False):
     while i < MAXNODES:
         i += 1;
     
-        if not found_goal and random.random() < 0.5:
+        if not found_goal and random.random() < 0.45:#0.5:
             qrand = Node(goal.x,goal.y);
         else:
             # Random node
